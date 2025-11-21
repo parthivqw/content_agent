@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Content Creator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #ffffff;
+            --bg-secondary: #fafbfc;
+            --bg-card: #ffffff;
+            --bg-hover: #f8f9fa;
+            --bg-accent-light: #f5f7ff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a5568;
+            --text-muted: #8896a8;
+            --accent-primary: #6366f1;
+            --accent-secondary: #14b8a6;
+            --accent-tertiary: #f59e0b;
+            /* 🔥 NEW: Added error/danger colors */
+            --danger-color: #EF4444;
+            --danger-light: #FEF2F2;
+
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            --accent-glow: rgba(99, 102, 241, 0.12);
+            --border-color: #e4e7eb;
+            --border-light: #f0f2f5;
+            --success-color: #10b981;
+            --success-light: #d1fae5;
+            --warning-color: #f59e0b;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-glow: 0 4px 20px rgba(99, 102, 241, 0.12);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Space Grotesk', 'Inter', sans-serif;
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 3rem 3.5rem;
+            position: relative;
+            background: var(--bg-main);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.08);
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .workflow-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            min-height: 400px;
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            margin-bottom: 2.25rem;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+
+        .step-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .step-card.active::before {
+            opacity: 1;
+        }
+
+        .step-card.completed {
+            opacity: 0.5;
+            pointer-events: none;
+            border-color: var(--border-light);
+            transform: scale(0.97);
+            animation: fadeOut 0.5s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0.3;
+                transform: scale(0.96) translateY(-10px);
+            }
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .agent-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: var(--radius-md);
+            background: var(--accent-gradient);
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: var(--shadow-glow);
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .agent-icon svg {
+            width: 36px;
+            height: 36px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .agent-icon.completed {
+            background: var(--success-color);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+        }
+
+        .step-card:hover .agent-icon {
+            transform: scale(1.05);
+        }
+
+        .step-title-group {
+            flex: 1;
+        }
+
+        .agent-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        /* 🔥 TASK 1: NEW COMPACT SERVICE GRID */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-card {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .service-card input {
+            display: none;
+        }
+
+        .service-card-content {
+            padding: 1.75rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .service-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .service-card:hover .service-card-content {
+            border-color: var(--accent-primary);
+            background: var(--bg-accent-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .service-card input:checked+.service-card-content {
+            border-color: var(--accent-primary);
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .service-card input:checked+.service-card-content::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .option-card {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.18s;
+        }
+
+        .option-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .option-card input {
+            display: none;
+        }
+
+        .option-card-content {
+            padding: 2.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--bg-secondary);
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .option-card:hover .option-card-content {
+            border-color: var(--accent-primary);
+            background: var(--bg-accent-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .option-card input:checked+.option-card-content {
+            border-color: var(--accent-primary);
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .option-card input:checked+.option-card-content::after {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .action-button {
+            background: var(--accent-gradient);
+            color: white;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 2rem;
+            float: right;
+            box-shadow: var(--shadow-md);
+            font-family: var(--font-family);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        .action-button:disabled {
+            background: var(--border-color);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* 🔥 NEW: Secondary Button Style */
+        .secondary-button {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            padding: 1rem 2.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 2rem;
+            float: right;
+            margin-right: 1rem;
+            box-shadow: var(--shadow-sm);
+            font-family: var(--font-family);
+        }
+
+        .secondary-button:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+
+        .plan-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .agent-plan {
+            background: var(--bg-accent-light);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .agent-plan:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-sm);
+            transform: translateX(4px);
+        }
+
+        .agent-plan-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-family: var(--font-display);
+        }
+
+        .agent-plan-header svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--accent-primary);
+        }
+
+        .plan-steps {
+            list-style: none;
+            padding: 0;
+        }
+
+        .plan-step {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 1.75rem;
+            font-size: 0.95rem;
+        }
+
+        .plan-step:last-child {
+            border-bottom: none;
+        }
+
+        .plan-step::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* 🔥 NEW: Critique Box Style */
+        .critique-box {
+            background: var(--danger-light);
+            border: 2px solid var(--danger-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .critique-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--danger-color);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-family: var(--font-display);
+        }
+
+        .critique-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .status-panel {
+            width: 380px;
+            background: var(--bg-secondary);
+            border-left: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -2px 0 16px rgba(0, 0, 0, 0.03);
+        }
+
+        .status-header {
+            padding: 2rem 1.75rem;
+            border-bottom: 2px solid var(--border-light);
+            background: var(--bg-secondary);
+        }
+
+        .status-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-family: var(--font-display);
+            color: var(--text-primary);
+        }
+
+        .status-title svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--accent-primary);
+        }
+
+        .status-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+        }
+
+        .status-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: var(--bg-main);
+        }
+
+        /* 🔥 TASK 3: EXPANDABLE AGENT STATUS */
+        .agent-status {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border-light);
+            transition: all 0.28s cubic-bezier(.16, 1, .3, 1);
+            overflow: hidden;
+        }
+
+        .agent-status-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .agent-status.active {
+            border-color: var(--accent-primary);
+            background: var(--bg-accent-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .agent-status.active .agent-status-header {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.01);
+            }
+        }
+
+        .agent-status.completed {
+            opacity: 0.7;
+        }
+
+        .agent-status.pending {
+            opacity: 0.5;
+        }
+
+        .status-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .status-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-muted);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .agent-status.active .status-icon {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            animation: spin-icon 1.5s ease-in-out infinite;
+        }
+
+        .agent-status.active .status-icon svg {
+            stroke: white;
+        }
+
+        @keyframes spin-icon {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(10deg) scale(1.1);
+            }
+
+            100% {
+                transform: rotate(0deg) scale(1);
+            }
+        }
+
+        .agent-status.completed .status-icon {
+            background: var(--success-color);
+            border-color: var(--success-light);
+        }
+
+        .agent-status.completed .status-icon svg {
+            stroke: white;
+        }
+
+        .status-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .status-agent-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .status-label {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .status-label.active {
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+        }
+
+        .status-label.completed {
+            background: var(--success-light);
+            color: var(--success-color);
+        }
+
+        .status-label.pending {
+            background: var(--bg-hover);
+            color: var(--text-muted);
+        }
+
+        .expand-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .expand-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-muted);
+        }
+
+        .agent-status.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* 🔥 TASK 3: AGENT LOG ENTRIES */
+        .agent-log-entries {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+            padding: 0 1.25rem;
+            background: var(--bg-secondary);
+        }
+
+        .agent-status.expanded .agent-log-entries {
+            max-height: 500px;
+            padding: 1rem 1.25rem 1.25rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .log-entry {
+            font-size: 0.85rem;
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 0.5rem;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid;
+            background: var(--bg-card);
+            animation: slideInLog 0.3s ease;
+        }
+
+        @keyframes slideInLog {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .log-entry.pending {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        .log-entry.active {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+            background: var(--bg-accent-light);
+        }
+
+        .log-entry.completed {
+            border-color: var(--success-color);
+            color: var(--text-secondary);
+        }
+
+        .loader {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin: 1rem 0;
+            border: 2px solid var(--border-light);
+        }
+
+        .loader-spinner {
+            display: inline-block;
+            width: 42px;
+            height: 42px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .form-field label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .form-field input[type="text"],
+        .form-field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-field input[type="text"]:focus,
+        .form-field textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: white;
+        }
+
+        .radio-group,
+        .multiselect-group {
+            display: flex;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label,
+        .multiselect-group label {
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--bg-secondary);
+            padding: 0.75rem 1.1rem;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .radio-group label:hover,
+        .multiselect-group label:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-accent-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .radio-group input:checked+span,
+        .multiselect-group input:checked+span {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .radio-group input,
+        .multiselect-group input {
+            margin: 0;
+            accent-color: var(--accent-primary);
+            width: 17px;
+            height: 17px;
+        }
+
+        .form-fieldset {
+            border: 2px solid var(--border-color);
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background: var(--bg-accent-light);
+            padding: 1.75rem;
+            border-radius: var(--radius-md);
+        }
+
+        .form-fieldset legend {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+            padding: 0 0.65rem;
+            font-family: var(--font-display);
+        }
+
+        .prompt-selection-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .prompt-card {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .prompt-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+        }
+
+        .prompt-card input {
+            display: none;
+        }
+
+        .prompt-card-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            color: var(--accent-primary);
+            margin-bottom: 0.65rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .prompt-card-header img {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .prompt-card-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .prompt-card input:checked+.prompt-card-content {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+            background: var(--bg-accent-light);
+        }
+
+        .prompt-card input:checked+.prompt-card-content::after {
+            content: '✓';
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 26px;
+            height: 26px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .number-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            margin-top: 1.25rem;
+        }
+
+        .number-input-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .number-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .number-input-wrapper button {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            font-size: 1.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .number-input-wrapper button:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .number-input-wrapper span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            width: 36px;
+            text-align: center;
+        }
+
+        .image-result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .image-result-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .image-result-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .image-result-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            float: right;
+        }
+
+        .feedback-button {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-button:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .feedback-button.like {
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .feedback-button.like:hover {
+            background: var(--success-color);
+            color: white;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);
+        }
+
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-hover);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        @media (max-width: 1024px) {
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .option-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="main-panel">
+            <div class="header">
+                <h1>⚡ Agentic Content Creator</h1>
+                <p>Multi-Agent AI System for Content Generation</p>
+            </div>
+            <div class="workflow-container" id="workflow-container"></div>
+        </div>
+        <div class="status-panel">
+            <div class="status-header">
+                <div class="status-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                    Agent Status
+                </div>
+                <div class="status-subtitle">Live workflow progress</div>
+            </div>
+            <div class="status-content" id="status-content">
+                <div class="agent-status pending" data-agent="planner">
+                    <div class="agent-status-header">
+                        <div class="status-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+                                <path d="M9 13a4.5 4.5 0 0 0 3-4" />
+                                <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5" />
+                                <path d="M3.477 10.896a4 4 0 0 1 .585-.396" />
+                                <path d="M6 18a4 4 0 0 1-1.967-.516" />
+                                <path d="M12 13h4" />
+                                <path d="M12 18h6a2 2 0 0 1 2 2v1" />
+                                <path d="M12 8h8" />
+                                <path d="M16 8V5a2 2 0 0 1 2-2" />
+                                <circle cx="16" cy="13" r=".5" />
+                                <circle cx="18" cy="3" r=".5" />
+                                <circle cx="20" cy="21" r=".5" />
+                                <circle cx="20" cy="8" r=".5" />
+                            </svg>
+                        </div>
+                        <div class="status-body">
+                            <div class="status-agent-name">Planning Agent</div>
+                            <span class="status-label pending">Pending</span>
+                        </div>
+                        <div class="expand-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="agent-log-entries"></div>
+                </div>
+                <div class="agent-status pending" data-agent="prepare_agent">
+                    <div class="agent-status-header">
+                        <div class="status-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                                <path d="M12 11h4" />
+                                <path d="M12 16h4" />
+                                <path d="M8 11h.01" />
+                                <path d="M8 16h.01" />
+                            </svg>
+                        </div>
+                        <div class="status-body">
+                            <div class="status-agent-name">Prepare Agent</div>
+                            <span class="status-label pending">Pending</span>
+                        </div>
+                        <div class="expand-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="agent-log-entries"></div>
+                </div>
+                <div class="agent-status pending" data-agent="processing_agent">
+                    <div class="agent-status-header">
+                        <div class="status-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                                <path d="M20 3v4" />
+                                <path d="M22 5h-4" />
+                            </svg>
+                        </div>
+                        <div class="status-body">
+                            <div class="status-agent-name">Processing Agent</div>
+                            <span class="status-label pending">Pending</span>
+                        </div>
+                        <div class="expand-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="agent-log-entries"></div>
+                </div>
+                <div class="agent-status pending" data-agent="execution_agent">
+                    <div class="agent-status-header">
+                        <div class="status-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m7.5 4.27 9 5.15" />
+                                <path
+                                    d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                                <path d="m3.3 7 8.7 5 8.7-5" />
+                                <path d="M12 22V12" />
+                            </svg>
+                        </div>
+                        <div class="status-body">
+                            <div class="status-agent-name">Execution Agent</div>
+                            <span class="status-label pending">Pending</span>
+                        </div>
+                        <div class="expand-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="agent-log-entries"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Script loading...');
+
+        const workflowContainer = document.getElementById('workflow-container');
+        const statusContent = document.getElementById('status-content');
+        const GENERATE_API = 'http://127.0.0.1:8000/generate';
+        const CONTINUE_API = 'http://127.0.0.1:8000/continue';
+        // 🔥 NEW: Stream endpoint
+        const STREAM_API_BASE = 'http://127.0.0.1:8000/stream/';
+
+        let currentThreadId = null;
+        let accumulatedAnswers = {};
+        let currentEventSource = null; // 🔥 NEW: Global var for our stream
+
+        let agentLogs = {
+            planner: [],
+            prepare_agent: [],
+            processing_agent: [],
+            execution_agent: [],
+            supervisor: []
+        };
+
+        console.log('✅ Variables initialized');
+
+        // (AGENT_ICONS, AGENT_NAMES, MODEL_LOGOS... all your constants are perfect, no changes)
+        // 🔥 TASK 2: LUCIDE ICONS MAP
+        const AGENT_ICONS = {
+            supervisor: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+            planner: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M9 13a4.5 4.5 0 0 0 3-4"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M12 13h4"/><path d="M12 18h6a2 2 0 0 1 2 2v1"/><path d="M12 8h8"/><path d="M16 8V5a2 2 0 0 1 2-2"/><circle cx="16" cy="13" r=".5"/><circle cx="18" cy="3" r=".5"/><circle cx="20" cy="21" r=".5"/><circle cx="20" cy="8" r=".5"/></svg>',
+            prepare_agent: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>',
+            processing_agent: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg>',
+            execution_agent: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>'
+        };
+        const AGENT_NAMES = {
+            supervisor: 'Supervisor',
+            planner: 'Planning Agent',
+            prepare_agent: 'Prepare Agent',
+            processing_agent: 'Processing Agent',
+            execution_agent: 'Execution Agent'
+        };
+        const MODEL_LOGOS = { /* ... your logos ... */ };
+        const MODEL_LOGOS_FALLBACK = { /* ... your fallback logos ... */ };
+
+
+        // --- (Helper functions: addAgentLog, updateAgentStatus, setupAgentLogToggles) ---
+        // (These are the same as your file, no changes needed)
+        function addAgentLog(agentKey, message, status = 'pending') {
+            console.log(`📝 Adding log to ${agentKey}: ${message} [${status}]`);
+            const card = document.querySelector(`.agent-status[data-agent="${agentKey}"]`);
+            if (!card) return;
+            const logContainer = card.querySelector('.agent-log-entries');
+            if (!logContainer) return;
+
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${status}`;
+            logEntry.textContent = message;
+            logContainer.appendChild(logEntry);
+
+            if (!agentLogs[agentKey]) agentLogs[agentKey] = [];
+            agentLogs[agentKey].push({ message, status, timestamp: Date.now() });
+
+            if (status === 'active' || status === 'completed') {
+                card.classList.add('expanded');
+            }
+        }
+
+        function updateAgentStatus(agentKey, status) {
+            console.log(`Updating status for ${agentKey} to ${status}`);
+            const card = document.querySelector(`.agent-status[data-agent="${agentKey}"]`);
+            if (card) {
+                const label = card.querySelector('.status-label');
+                const icon = card.querySelector('.status-icon');
+
+                card.classList.remove('active', 'completed', 'pending');
+                label.classList.remove('active', 'completed', 'pending');
+                card.classList.add(status);
+                label.classList.add(status);
+
+                let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+                if (status === 'completed') {
+                    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+                } else {
+                    icon.innerHTML = AGENT_ICONS[agentKey] || '🤖';
+                }
+                label.textContent = statusText;
+            } else {
+                console.warn(`Could not find status card for agent: ${agentKey}`);
+            }
+        }
+
+        function setupAgentLogToggles() {
+            document.querySelectorAll('.agent-status-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const card = header.closest('.agent-status');
+                    card.classList.toggle('expanded');
+                });
+            });
+        }
+
+        function resetAllAgentStatus() {
+            agentLogs = { planner: [], prepare_agent: [], processing_agent: [], execution_agent: [] };
+            document.querySelectorAll('.agent-status').forEach(card => {
+                const agentKey = card.dataset.agent;
+                card.classList.remove('active', 'completed', 'expanded');
+                card.classList.add('pending');
+                card.querySelector('.status-label').textContent = 'Pending';
+                card.querySelector('.status-label').classList.remove('active', 'completed');
+                card.querySelector('.status-label').classList.add('pending');
+                card.querySelector('.status-icon').innerHTML = AGENT_ICONS[agentKey] || '🤖';
+                card.querySelector('.agent-log-entries').innerHTML = '';
+            });
+        }
+
+        // --- (DOM and Initial Rendering) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!workflowContainer) {
+                console.error('CRITICAL: #workflow-container element not found. UI cannot be rendered.');
+                return;
+            }
+            setupAgentLogToggles();
+            renderInitialStep();
+        });
+
+        function renderInitialStep() {
+            accumulatedAnswers = {};
+            resetAllAgentStatus(); // Reset status panel
+
+            const stepHtml = `
+                <div class="step-card active" id="step-initial">
+                    <div class="step-header">
+                        <div class="agent-icon">${AGENT_ICONS.supervisor}</div>
+                        <div class="step-title-group">
+                            <div class="agent-name">Supervisor</div>
+                            <div class="step-title">Select Service</div>
+                        </div>
+                    </div>
+                    <div class="service-grid">
+                        <label class="service-card">
+                            <input type="radio" name="service_id" value="social_media_post" checked>
+                            <div class="service-card-content">
+                                <div class="service-icon">📱</div>
+                                <div class="service-name">Social Media Post</div>
+                            </div>
+                        </label>
+                        <label class="service-card">
+                            <input type="radio" name="service_id" value="blog_generator">
+                            <div class="service-card-content">
+                                <div class="service-icon">📝</div>
+                                <div class="service-name">Blog Generator</div>
+                            </div>
+                        </label>
+                    </div>
+                    <button class="action-button" id="start-button">Start Generation →</button>
+                </div>
+                `;
+            workflowContainer.innerHTML = stepHtml;
+            document.getElementById('start-button').addEventListener('click', startInitialFlow);
+        }
+
+        // -----------------------------------------------------------------
+        // 🔥 --- CORE STREAMING LOGIC --- 🔥
+        // -----------------------------------------------------------------
+
+        /**
+         * 1. Kicks off the *entire* workflow.
+         * - Calls POST /generate to create the thread.
+         * - Connects to GET /stream/{thread_id} to listen for events.
+         */
+        async function startInitialFlow(event) {
+            const actionButton = event.target;
+            if (actionButton) {
+                actionButton.textContent = 'Processing...';
+                actionButton.disabled = true;
+            }
+            showLoader();
+            resetAllAgentStatus(); // Clear all logs for the new run
+
+            const serviceInput = document.querySelector('input[name="service_id"]:checked');
+            const serviceId = serviceInput ? serviceInput.value : 'social_media_post';
+
+            addAgentLog('planner', 'Starting workflow...', 'active');
+            updateAgentStatus('planner', 'active');
+
+            try {
+                // Step 1: Create the thread
+                const payload = { service_id: serviceId };
+                const initResponse = await fetch(GENERATE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!initResponse.ok) {
+                    const errorData = await initResponse.json();
+                    throw new Error(errorData.detail || JSON.stringify(errorData));
+                }
+
+                const streamData = await initResponse.json();
+                currentThreadId = streamData.thread_id;
+
+                if (streamData.status !== 'streaming') {
+                    // This is the *first* pause (Action Plan)
+                    // The backend's /generate endpoint now runs until the first pause
+                    console.log("Stream initiated, handling first pause.");
+                    handleApiResponse(streamData);
+                    hideLoader();
+                    // Now, connect to the stream for *future* events
+                    connectToStream(currentThreadId);
+                } else {
+                    // Fallback in case /generate didn't pause
+                    connectToStream(currentThreadId);
+                }
+
+            } catch (error) {
+                console.error("❌ API Error during /generate:", error);
+                if (actionButton) {
+                    actionButton.textContent = 'Retry →';
+                    actionButton.disabled = false;
+                }
+                hideLoader();
+            }
+        }
+
+        /**
+         * 2. Connects to the event stream.
+         * This function creates the EventSource and attaches all listeners.
+         * This is called ONCE per workflow.
+         */
+        function connectToStream(threadId) {
+            if (currentEventSource) {
+                currentEventSource.close();
+            }
+            console.log(`🔌 Connecting to event stream for thread: ${threadId}`);
+            const streamUrl = `${STREAM_API_BASE}${threadId}`;
+            currentEventSource = new EventSource(streamUrl);
+
+            currentEventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+
+                if (data.event === "pause") {
+                    console.log('⏸️ Stream paused for user input.');
+                    hideLoader();
+                    handleApiResponse(data.data); // Render the new UI card
+
+                } else if (data.event === "end") {
+                    console.log('🏁 Stream finished.');
+                    currentEventSource.close();
+                    hideLoader();
+                    handleApiResponse(data.data); // Render the final result
+
+                } else if (data.event === "error") {
+                    console.error('❌ Stream Error:', data.data);
+                    addAgentLog(data.agent || 'supervisor', `Error: ${data.data}`, 'completed');
+                    currentEventSource.close();
+                    hideLoader();
+
+                } else {
+                    // This is a live log event
+                    console.log('📡 Live Event:', data);
+                    handleLiveEvent(data);
+                }
+            };
+
+            currentEventSource.onerror = function (err) {
+                console.error('❌ EventSource failed:', err);
+                currentEventSource.close();
+                hideLoader();
+                renderFinalResult({
+                    data: {
+                        error: "Connection Failed",
+                        critique: "Lost connection to the agent stream. Please check the server and try again."
+                    }
+                });
+            };
+        }
+
+        /**
+         * 3. Triggers the *continuation* of the workflow.
+         * This just POSTs data to /continue and does NOT listen for a response.
+         * The active EventSource (from connectToStream) will get the new events.
+         */
+        async function triggerContinue(payload, actionButton) {
+            if (actionButton) {
+                actionButton.textContent = 'Processing...';
+                actionButton.disabled = true;
+            }
+            showLoader();
+
+            try {
+                console.log('📤 Sending /continue trigger:', payload);
+                const response = await fetch(CONTINUE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || JSON.stringify(errorData));
+                }
+
+                // The response is just an "ok, I got it"
+                const data = await response.json();
+                console.log("✅ Continue acknowledged by backend:", data.data.message);
+                // We DON'T call handleApiResponse. We just wait for the stream.
+
+            } catch (error) {
+                console.error("❌ API Error during /continue:", error);
+                if (actionButton) {
+                    actionButton.textContent = 'Retry →';
+                    actionButton.disabled = false;
+                }
+                hideLoader();
+            }
+        }
+
+        /**
+         * 4. Handles live log events from the stream.
+         * This updates the right-hand Status Panel.
+         */
+        // 🔥 --- NEW: Function to handle live log events --- 🔥
+        function handleLiveEvent(data) {
+            let agentKey = data.agent;
+
+            // Map "planner" to "planner" but "supervisor" to "planner"
+            // This is a UI choice: we log "service_lookup" under the Planner.
+            if (agentKey === "supervisor") {
+                agentKey = "planner"; // Log supervisor events under the planner card
+            }
+
+            if (!agentKey || !agentLogs.hasOwnProperty(agentKey)) {
+                console.warn("Unknown agent key in live event:", data.agent, data.node);
+                return;
+            }
+
+            // Update status panel
+            updateAgentStatus(agentKey, 'active');
+
+            // Add a log entry based on the node that just ran
+            let logMessage = `Running node: ${data.node}...`;
+
+            // Make logs more human-readable
+            if (data.node === 'service_lookup') {
+                logMessage = `Service lookup...`;
+                addAgentLog(agentKey, logMessage, 'active');
+            } else if (data.node === 'validation_node') {
+                const result = data.data?.validation_result;
+                if (result === 'no') {
+                    logMessage = `✗ Validation FAILED: ${data.data.critique.substring(0, 50)}...`;
+                    addAgentLog(agentKey, logMessage, 'completed'); // 'completed' logs the error
+                } else if (result === 'yes') {
+                    logMessage = `✓ Validation PASSED.`;
+                    addAgentLog(agentKey, logMessage, 'completed');
+                }
+            } else if (data.node === 'run_blog_package_node') { // This is the refine tool
+                logMessage = data.data.critique ? 'Refining draft based on critique...' : 'Generating fresh draft...';
+                addAgentLog(agentKey, logMessage, 'active');
+            } else if (data.node.includes('generate_image')) {
+                logMessage = 'Generating cover image...';
+                addAgentLog(agentKey, logMessage, 'active');
+            } else {
+                // Generic log for other nodes
+                addAgentLog(agentKey, logMessage, 'active');
+            }
+
+            // Set previous agents to 'completed'
+            const agentKeys = Object.keys(agentLogs);
+            const currentIndex = agentKeys.indexOf(agentKey);
+            for (let i = 0; i < currentIndex; i++) {
+                const prevAgentKey = agentKeys[i];
+                if (document.querySelector(`.agent-status[data-agent="${prevAgentKey}"]`).classList.contains('active')) {
+                    updateAgentStatus(prevAgentKey, 'completed');
+                }
+            }
+        }
+
+        /**
+         * 5. Handles "pause" and "end" events from the stream.
+         * This renders the main UI cards.
+         */
+        // -----------------------------------------------------------------
+        // 🔥 --- THIS IS THE FIXED FUNCTION (Re-ordered Logic) --- 🔥
+        // -----------------------------------------------------------------
+        function handleApiResponse(data) {
+            console.log('🔍 Handling API response (from pause or end):', data);
+            currentThreadId = data.thread_id; // Always set/update thread_id
+
+            // --- ROUTER FOR 'success' (This is for a *true* end-of-graph) ---
+            if (data.status === 'success') {
+                console.log("✅ RENDERING: Workflow Finished (True Success)");
+                updateAgentStatus('execution_agent', 'completed');
+                renderFinalResult(data);
+
+                // --- ROUTER FOR 'requires_input' (ALL Pauses & Failures) ---
+            } else if (data.status === 'requires_input') {
+
+                // --- PRIORITY 1: Check for FINAL results (with images) ---
+
+                // 1A. FINAL Blog Package (has image AND draft)
+                if (data.data && data.data.blog_draft && data.data.current_images_base64) {
+                    console.log("✅ RENDERING: FINAL Blog Result");
+                    addAgentLog('execution_agent', '✓ Blog package complete', 'completed');
+                    updateAgentStatus('processing_agent', 'completed');
+                    updateAgentStatus('execution_agent', 'completed');
+                    renderBlogResultStep(data.data);
+
+                    // 1B. FINAL Social Media (has image, no draft)
+                } else if (data.data && data.data.current_images_base64) {
+                    console.log("✅ RENDERING: FINAL Social Media Result");
+                    addAgentLog('execution_agent', '✓ Image(s) generated', 'completed');
+                    updateAgentStatus('processing_agent', 'completed');
+                    updateAgentStatus('execution_agent', 'completed');
+                    renderImageResultStep(data.data);
+
+                    // --- PRIORITY 2: Check for MID-workflow reviews (no images) ---
+
+                    // 2A. Blog Package REVIEW (has draft, NO image)
+                } else if (data.data && data.data.blog_draft) {
+                    console.log("✅ RENDERING: Blog Package Review");
+                    addAgentLog('prepare_agent', '✓ Research complete', 'completed');
+                    addAgentLog('processing_agent', 'Drafting blog content...', 'active');
+                    updateAgentStatus('prepare_agent', 'completed');
+                    updateAgentStatus('processing_agent', 'active');
+                    renderBlogPackageStep(data.data);
+
+                    // 2B. Social Media REVIEW (has prompts, NO image)
+                } else if (data.data && data.data.image_prompts) {
+                    console.log("✅ RENDERING: Prompt Selection");
+                    addAgentLog('prepare_agent', '✓ Information gathered', 'completed');
+                    addAgentLog('processing_agent', 'Creating image prompts...', 'active');
+                    updateAgentStatus('prepare_agent', 'completed');
+                    updateAgentStatus('processing_agent', 'active');
+                    renderPromptSelectionStep(data.data);
+
+                    // --- PRIORITY 3: Check for Failures & Questions ---
+
+                    // 3A. VALIDATION FAILURE (from execution_agent)
+                } else if (data.data && data.data.validation_result === 'no') {
+                    console.error("❌ RENDERING: Validation FAILED (Max Retries)");
+                    addAgentLog('execution_agent', `✗ Max Retries Reached. Final Critique: ${data.data.critique}`, 'completed');
+                    updateAgentStatus('execution_agent', 'completed');
+                    renderFinalResult({ data: data.data }); // Pass the whole data object
+
+                    // 3B. QUESTIONS (from prepare_agent)
+                } else if (data.data && data.data.questions_for_user) {
+                    console.log("✅ RENDERING: Questions for User");
+                    addAgentLog('prepare_agent', 'Pausing for user input...', 'active');
+                    updateAgentStatus('prepare_agent', 'active');
+                    renderQuestionStep(data.data.questions_for_user);
+
+                    // 3C. ACTION PLAN (from planner)
+                } else if (data.data && data.data.action_plan) {
+                    console.log("✅ RENDERING: Action Plan");
+                    addAgentLog('planner', '✓ Action plan created', 'completed');
+                    updateAgentStatus('planner', 'completed');
+                    renderActionPlanStep(data.data.action_plan);
+
+                    // 3D. Fallback for unhandled
+                } else {
+                    console.warn("Unhandled 'requires_input' state:", data.data);
+                    renderFinalResult({ data: data.data });
+                }
+
+            } else {
+                console.error("Unknown API response status:", data);
+                renderFinalResult({ data: { error: "Unknown API Status", critique: JSON.stringify(data) } });
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // 🔥 --- TRIGGER FUNCTIONS (They now call triggerContinue) --- 🔥
+        // -----------------------------------------------------------------
+
+        async function continueAfterPlanApproval(button) {
+            addAgentLog('planner', '✓ Plan approved by user', 'completed');
+            addAgentLog('prepare_agent', 'Gathering information...', 'active');
+            updateAgentStatus('prepare_agent', 'active');
+            const payload = {
+                thread_id: currentThreadId,
+                continue_type: "plan_approval"
+            };
+            triggerContinue(payload, button); // 🔥 CHANGED
+        }
+
+        async function submitAnswers(button) {
+            const form = button.closest('.step-card').querySelector('form');
+            const formData = new FormData(form);
+            const userAnswers = {};
+            const inputs = form.querySelectorAll('input[name], textarea[name], select[name]');
+            const inputNames = new Set(Array.from(inputs).map(i => i.name));
+
+            for (const key of inputNames) {
+                const allValues = formData.getAll(key);
+                if (allValues.length > 1) {
+                    userAnswers[key] = allValues;
+                } else if (allValues.length === 1) {
+                    userAnswers[key] = allValues[0];
+                }
+            }
+
+            // Check if this is the first set of answers
+            const isStage1Submission = !accumulatedAnswers.hasOwnProperty('content_purpose') && !accumulatedAnswers.hasOwnProperty('topic');
+            if (isStage1Submission) {
+                addAgentLog('prepare_agent', 'Answers submitted', 'active');
+                addAgentLog('prepare_agent', 'Processing responses...', 'active');
+            } else if (userAnswers.hasOwnProperty('confirmed_content_type')) {
+                addAgentLog('prepare_agent', '✓ Content type confirmed', 'completed');
+                addAgentLog('prepare_agent', 'Generating final questions...', 'active');
+            } else {
+                addAgentLog('prepare_agent', '✓ Final details received', 'completed');
+                addAgentLog('processing_agent', 'Starting content creation...', 'active');
+                updateAgentStatus('processing_agent', 'active');
+            }
+            updateAgentStatus('prepare_agent', 'active');
+
+            accumulatedAnswers = { ...accumulatedAnswers, ...userAnswers };
+            console.log('Accumulated answers:', accumulatedAnswers);
+
+            const payload = {
+                thread_id: currentThreadId,
+                user_answers: accumulatedAnswers,
+                continue_type: "answer"
+            };
+            triggerContinue(payload, button); // 🔥 CHANGED
+        }
+
+        function startBlogExecution(button, critique) {
+            let continueType = "blog_approval";
+            let userAnswersPayload = { ...accumulatedAnswers };
+
+            if (critique) {
+                console.log("🚀 Starting blog refinement with user critique:", critique);
+                addAgentLog('processing_agent', '✓ User requested revisions', 'active');
+                addAgentLog('processing_agent', 'Refining draft...', 'active');
+                userAnswersPayload["critique"] = critique;
+            } else {
+                console.log("🚀 Starting blog execution (validation)...");
+                addAgentLog('processing_agent', '✓ Blog package approved', 'completed');
+                addAgentLog('execution_agent', 'Validating content...', 'active');
+            }
+
+            updateAgentStatus('processing_agent', 'active'); // Keep it active for refinement
+            updateAgentStatus('execution_agent', 'pending');
+
+            const payload = {
+                thread_id: currentThreadId,
+                continue_type: continueType,
+                user_answers: userAnswersPayload
+            };
+
+            console.log("🚀 Sending blog payload:", payload);
+            button.closest('.step-card').querySelectorAll('button').forEach(b => b.disabled = true);
+            triggerContinue(payload, button); // 🔥 CHANGED
+        }
+
+        function startExecution(button) {
+            const selectedPromptEl = document.querySelector('input[name="selected_prompt"]:checked');
+            const selectedPrompt = selectedPromptEl ? decodeURIComponent(selectedPromptEl.value) : null;
+            const imageCount = parseInt(document.getElementById('image-count').textContent);
+
+            if (!selectedPrompt) {
+                return;
+            }
+
+            addAgentLog('processing_agent', '✓ Prompt selected', 'completed');
+            addAgentLog('execution_agent', 'Generating images...', 'active');
+            updateAgentStatus('execution_agent', 'active');
+
+            const payload = {
+                thread_id: currentThreadId,
+                continue_type: "execution",
+                user_answers: {
+                    ...accumulatedAnswers,
+                    "selected_prompt": selectedPrompt,
+                    "num_images": imageCount
+                }
+            };
+
+            console.log("🚀 Starting execution with payload:", payload);
+            triggerContinue(payload, button); // 🔥 CHANGED
+        }
+
+        // -----------------------------------------------------------------
+        // --- (All your `render...` functions are perfect) ---
+        // -----------------------------------------------------------------
+        // (renderActionPlanStep, renderQuestionStep, renderPromptSelectionStep,
+        // renderBlogPackageStep, renderImageResultStep, renderBlogResultStep,
+        // renderFinalResult, showLoader, hideLoader)
+        // ... (paste all your existing render functions here, no changes needed) ...
+
+        // (Pasting your render functions for completeness)
+        function renderActionPlanStep(actionPlan) {
+            const lastStep = workflowContainer.lastElementChild;
+            if (lastStep && lastStep.classList.contains('step-card')) {
+                lastStep.classList.add('completed');
+            }
+
+            const newStep = document.createElement('div');
+            newStep.className = 'step-card active';
+
+            let planHtml = '<div class="plan-container">';
+            for (const agentName in actionPlan) {
+                if (actionPlan.hasOwnProperty(agentName)) {
+                    const tasks = actionPlan[agentName];
+                    const formattedName = agentName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const agentKey = agentName.toLowerCase().replace(' agent', '_agent').replace('planning', 'planner');
+                    const icon = AGENT_ICONS[agentKey] || AGENT_ICONS.supervisor;
+                    planHtml += `
+                            <div class="agent-plan">
+                                <div class="agent-plan-header">${icon} ${formattedName}</div>
+                                <ul class="plan-steps">
+                                    ${tasks.map(task => `<li class="plan-step">${task.step_description}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                }
+            }
+            planHtml += '</div>';
+
+            newStep.innerHTML = `
+                    <div class="step-header">
+                        <div class="agent-icon">${AGENT_ICONS.planner}</div>
+                        <div class="step-title-group">
+                            <div class="agent-name">${AGENT_NAMES.planner}</div>
+                            <div class="step-title">Generated Action Plan</div>
+                        </div>
+                    </div>
+                    ${planHtml}
+                    <button class="action-button">Approve & Continue →</button>
+                `;
+
+            workflowContainer.appendChild(newStep);
+            newStep.querySelector('.action-button').addEventListener('click', (e) => continueAfterPlanApproval(e.target));
+        }
+
+        function renderQuestionStep(questions) {
+            const lastStep = workflowContainer.lastElementChild;
+            if (lastStep && lastStep.classList.contains('step-card')) {
+                lastStep.classList.add('completed');
+                const icon = lastStep.querySelector('.agent-icon');
+                if (icon) icon.classList.add('completed');
+            }
+
+            const newStep = document.createElement('div');
+            newStep.className = 'step-card active';
+
+            const isStage2 = accumulatedAnswers && (Object.keys(accumulatedAnswers).length > 0);
+            let title = "Gathering Information";
+            if (questions.length > 0 && questions[0].id === 'confirmed_content_type') {
+                title = "Confirm Content Type";
+            } else if (isStage2) {
+                title = "Follow-up Questions";
+            }
+
+            function buildFormHtml(items) {
+                let html = '';
+                for (const item of items) {
+                    const labelText = item.label;
+                    if (!labelText) continue;
+
+                    if (item.ui_element === 'form' && item.fields) {
+                        // ... (omitted for brevity, your code is fine) ...
+                    } else {
+                        html += `<div class="form-field">
+                                        <label for="${item.id}">${labelText}</label>`;
+
+                        if ((item.type === 'checkbox' || item.type === 'multiselect') && item.options) {
+                            html += `<div class="multiselect-group">`;
+                            for (const option of item.options) {
+                                const optionId = `${item.id}-${option.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                                html += `<label for="${optionId}">
+                                                <input type="checkbox" id="${optionId}" name="${item.id}" value="${option}"> 
+                                                <span>${option}</span>
+                                             </label>`;
+                            }
+                            html += `</div>`;
+                        } else if ((item.type === 'radio') && item.options) {
+                            html += `<div class="radio-group">`;
+                            for (const option of item.options) {
+                                const optionId = `${item.id}-${option.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                                html += `<label for="${optionId}">
+                                                <input type="radio" id="${optionId}" name="${item.id}" value="${option}"> 
+                                                <span>${option}</span>
+                                             </label>`;
+                            }
+                            html += `</div>`;
+                        } else if (item.type === 'textarea') {
+                            html += `<textarea id="${item.id}" name="${item.id}" rows="3"></textarea>`;
+                        } else {
+                            html += `<input type="text" id="${item.id}" name="${item.id}">`;
+                        }
+                        html += `</div>`;
+                    }
+                }
+                return html;
+            }
+            const formHtml = buildFormHtml(questions);
+
+            newStep.innerHTML = `
+                    <div class="step-header">
+                        <div class="agent-icon">${AGENT_ICONS.prepare_agent}</div>
+                        <div class="step-title-group">
+                            <div class="agent-name">${AGENT_NAMES.prepare_agent}</div>
+                            <div class="step-title">${title}</div>
+                        </div>
+                    </div>
+                    <form id="question-form" class="form-group">
+                        ${formHtml}
+                    </form>
+                    <button class="action-button">Submit Information →</button>
+                `;
+            workflowContainer.appendChild(newStep);
+            newStep.querySelector('.action-button').addEventListener('click', (e) => submitAnswers(e.target));
+        }
+
+        function renderPromptSelectionStep(data) {
+            // (Your existing function is perfect, no changes)
+            const lastStep = workflowContainer.lastElementChild;
+            if (lastStep && lastStep.classList.contains('step-card')) {
+                lastStep.classList.add('completed');
+                const icon = lastStep.querySelector('.agent-icon');
+                if (icon) icon.classList.add('completed');
+            }
+
+            const newStep = document.createElement('div');
+            newStep.className = 'step-card active';
+
+            const prompts = data.image_prompts || [];
+            const caption = data.draft_caption || "No caption generated.";
+
+            const modelNames = { 0: 'Prompt 1 (GPT-OSS)', 1: 'Prompt 2 (Llama-3.1)', 2: 'Prompt 3 (Kimi K2)' };
+            const logos = { 0: MODEL_LOGOS['GPT-OSS'], 1: MODEL_LOGOS['Llama-3.1'], 2: MODEL_LOGOS['Kimi K2'] };
+
+            let promptsHtml = prompts.map((prompt, index) => `
+                    <label class="prompt-card">
+                        <input type="radio" name="selected_prompt" value="${encodeURIComponent(prompt)}" ${index === 0 ? 'checked' : ''}>
+                        <div class="prompt-card-content">
+                            <div class="prompt-card-header">
+                                <img src="${logos[index] || ''}" alt="${modelNames[index]} logo">
+                                ${modelNames[index] || `Prompt ${index + 1}`}
+                            </div>
+                            <p class="prompt-card-text">${prompt}</p>
+                        </div>
+                    </label>
+                `).join('');
+
+            newStep.innerHTML = `
+                    <div class="step-header">
+                        <div class="agent-icon">${AGENT_ICONS.processing_agent}</div>
+                         <div class="step-title-group">
+                             <div class="agent-name">${AGENT_NAMES.processing_agent}</div>
+                             <div class="step-title">Choose Your Creative</div>
+                        </div>
+                    </div>
+                    <form id="execution-form">
+                        <div class="prompt-selection-container">${promptsHtml}</div>
+                        <div class="number-input-container">
+                            <label class="number-input-label">Number of Images (Max 3)</label>
+                            <div class="number-input-wrapper">
+                                <button type="button" id="decrement-images">-</button>
+                                <span id="image-count">1</span>
+                                <button type="button" id="increment-images">+</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="agent-plan" style="margin-top: 2rem; border-color: var(--accent-secondary);">
+                        <div class="agent-plan-header" style="color: var(--accent-secondary);">${AGENT_ICONS.prepare_agent} Generated Caption</div>
+                        <ul class="plan-steps">
+                            <li class="plan-step" style="border-bottom: none; padding-bottom: 0;">${caption}</li>
+                        </ul>
+                    </div>
+                    <button class="action-button" id="generate-images-button">Generate Images →</button>
+                `;
+            workflowContainer.appendChild(newStep);
+
+            const countSpan = newStep.querySelector('#image-count');
+            newStep.querySelector('#decrement-images').addEventListener('click', () => {
+                let count = parseInt(countSpan.textContent);
+                if (count > 1) countSpan.textContent = count - 1;
+            });
+            newStep.querySelector('#increment-images').addEventListener('click', () => {
+                let count = parseInt(countSpan.textContent);
+                if (count < 3) countSpan.textContent = count + 1;
+            });
+            newStep.querySelector('#generate-images-button').addEventListener('click', (e) => {
+                startExecution(e.target);
+            });
+        }
+
+        function renderBlogPackageStep(data) {
+            // (Your existing function is perfect, no changes)
+            const lastStep = workflowContainer.lastElementChild;
+            if (lastStep && lastStep.classList.contains('step-card')) {
+                lastStep.classList.add('completed');
+                const icon = lastStep.querySelector('.agent-icon');
+                if (icon) icon.classList.add('completed');
+            }
+            const newStep = document.createElement('div');
+            newStep.className = 'step-card active';
+            const blogDraft = data.blog_draft || "Error: Blog draft not found.";
+            const coverPrompt = data.cover_image_prompt || "Error: Cover prompt not found.";
+            const teaserCaption = data.draft_caption || "Error: Teaser caption not found.";
+            function getBlogOutline(markdown) {
+                if (!markdown) return "";
+                const lines = markdown.split('\n');
+                const titleLine = lines.find(line => line.startsWith('# '));
+                const title = titleLine ? titleLine.replace('# ', '') : "Blog Post";
+                const headers = lines.filter(line => line.startsWith('## '))
+                    .map(line => `<li>${line.replace('## ', '')}</li>`);
+                return `
+                        <div class="agent-plan" style="border-color: var(--accent-primary);">
+                            <div class="agent-plan-header" style="color: var(--accent-primary);">${AGENT_ICONS.processing_agent} Blog Outline</div>
+                            <ul class="plan-steps">
+                                <li class="plan-step"><strong>Title:</strong> ${title}</li>
+                                <li class="plan-step" style="padding-left: 1.75rem; border-bottom: none;"><strong>Sections:</strong><ul>${headers.join('')}</ul></li>
+                            </ul>
+                        </div>
+                    `;
+            }
+            newStep.innerHTML = `
+                    <div class="step-header">
+                        <div class="agent-icon">${AGENT_ICONS.processing_agent}</div>
+                        <div class="step-title-group">
+                            <div class="agent-name">${AGENT_NAMES.processing_agent}</div>
+                            <div class="step-title">Review Your Creative Package</div>
+                        </div>
+                    </div>
+                    ${getBlogOutline(blogDraft)}
+                    <div class="agent-plan" style="margin-top: 1.5rem;">
+                        <div class="agent-plan-header">${AGENT_ICONS.processing_agent} Cover Image Prompt</div>
+                        <ul class="plan-steps">
+                            <li class="plan-step" style="border-bottom: none; padding-bottom: 0;">${coverPrompt}</li>
+                        </ul>
+                    </div>
+                    <div class="agent-plan" style="margin-top: 1.5rem; border-color: var(--accent-secondary);">
+                        <div class="agent-plan-header" style="color: var(--accent-secondary);">${AGENT_ICONS.prepare_agent} Teaser Caption</div>
+                        <ul class="plan-steps">
+                            <li class="plan-step" style="border-bottom: none; padding-bottom: 0;">${teaserCaption}</li>
+                        </ul>
+                    </div>
+                    <button class="action-button" id="generate-blog-button">Approve & Generate →</button>
+                    <button class="secondary-button" id="refine-blog-button">Request Revisions</button>
+                `;
+            workflowContainer.appendChild(newStep);
+            newStep.querySelector('#generate-blog-button').addEventListener('click', (e) => {
+                startBlogExecution(e.target, null); // Pass null for critique
+            });
+            newStep.querySelector('#refine-blog-button').addEventListener('click', (e) => {
+                const userCritique = prompt("What would you like the agent to change in the draft?\n(e.g., 'Make the tone more adventurous', 'Add a section about the Brahmastra')");
+                if (userCritique && userCritique.trim().length > 0) {
+                    startBlogExecution(e.target, userCritique);
+                } else if (userCritique !== null) {
+                    alert("Please provide some feedback for the agent.");
+                }
+            });
+        }
+
+        function renderImageResultStep(data) {
+            // (Your existing function is perfect, no changes)
+            const lastStep = workflowContainer.lastElementChild;
+            if (lastStep && lastStep.classList.contains('step-card')) {
+                lastStep.classList.add('completed');
+                const icon = lastStep.querySelector('.agent-icon');
+                if (icon) icon.classList.add('completed');
+            }
+            const newStep = document.createElement('div');
+            newStep.className = 'step-card active';
+            const images_base64 = data.current_images_base64 || [];
+            const caption = data.draft_caption || "Your generated caption.";
+            let imagesHtml = '<p>No images were generated. Something went wrong.</p>';
+            if (images_base64.length > 0) {
+                imagesHtml = images_base64.map(base64String => `
+                        <div class="image-result-card">
+                            <img src="data:image/png;base64,${base64String}" alt="Generated AI Image">
+                        </div>
+                    `).join('');
+            }
+            newStep.innerHTML = `
+                    <div class="step-header">
+                        <div class="agent-icon completed">${AGENT_ICONS.execution_agent}</div>
+                        <div class="step-title-group">
+                            <div class="agent-name">${AGENT_NAMES.execution_agent}</div>
+                            <div class_name="step-title">Your Generated Content</div>
+                        </div>
+                    </div>
+                    <div class="image-result-grid">
+                        ${imagesHtml}
+                    </div>
+                    <div class="agent-plan" style="margin-top: 2rem; border-color: var(--accent-secondary);">
+                        <div class="agent-plan-header" style="color: var(--accent-secondary);">${AGENT_ICONS.prepare_agent} Generated Caption</div>
+                        <ul class="plan-steps">
+                            <li class="plan-step" style="border-bottom: none; padding-bottom: 0;">${caption}</li>
+                        </ul>
+                    </div>
+                    <div class="feedback-buttons">
+                        <button class="feedback-button" id="regenerate-button">👎 Regenerate</button>
+                        <button class="feedback-button like" id="like-button">👍 Love It!</button>
+                    </div>
+                `;
+            workflowContainer.appendChild(newStep);
+            newStep.querySelector('#regenerate-button').addEventListener('click', (e) => {
+                alert('Fallback loop coming soon!');
+            });
+            newStep.querySelector('#like-button').addEventListener('click', (e) => {
+                alert('Workflow complete! Thanks for using the app.');
+                renderFinalResult({ data: accumulatedAnswers });
+            });
+        }
+
+        function renderBlogResultStep(data) {
+            // (Your existing function is perfect, no changes)
+            const lastStep = workflowContainer.lastElementChild;
+            if (lastStep && lastStep.classList.contains('step-card')) {
+                lastStep.classList.add('completed');
+                const icon = lastStep.querySelector('.agent-icon');
+                if (icon) icon.classList.add('completed');
+            }
+            const newStep = document.createElement('div');
+            newStep.className = 'step-card active';
+            const image_base64 = (data.current_images_base64 && data.current_images_base64[0]) ? data.current_images_base64[0] : null;
+            const caption = data.draft_caption || "Your generated caption.";
+            function simpleMarkdown(text) {
+                if (!text) return "";
+                return text
+                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                    .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+                    .replace(/\*(.*)\*/gim, '<em>$1</em>')
+                    .replace(/\n/gim, '<br>');
+            }
+            const blog_html = simpleMarkdown(data.blog_draft || "Error: No blog draft found.");
+            let imageHtml = '<p>No cover image was generated.</p>';
+            if (image_base64) {
+                imageHtml = `
+                        <div class="image-result-card">
+                            <img src="data:image/png;base64,${image_base64}" alt="Generated Cover Image">
+                        </div>
+                    `;
+            }
+            newStep.innerHTML = `
+                    <div class="step-header">
+                        <div class="agent-icon completed">${AGENT_ICONS.execution_agent}</div>
+                        <div class="step-title-group">
+                            <div class="agent-name">${AGENT_NAMES.execution_agent}</div>
+                            <div class="step-title">Your Generated Blog Package</div>
+                        </div>
+                    </div>
+                    <div class="image-result-grid" style="grid-template-columns: 1fr;">
+                        ${imageHtml}
+                    </div>
+                    <div class="agent-plan" style="margin-top: 2rem; border-color: var(--accent-secondary);">
+                        <div class="agent-plan-header" style="color: var(--accent-secondary);">${AGENT_ICONS.prepare_agent} Generated Teaser Caption</div>
+                        <ul class="plan-steps">
+                            <li class="plan-step" style="border-bottom: none; padding-bottom: 0;">${caption}</li>
+                        </ul>
+                    </div>
+                    <div class="agent-plan" style="margin-top: 1.5rem; border-color: var(--accent-primary);">
+                        <div class="agent-plan-header" style="color: var(--accent-primary);">${AGENT_ICONS.processing_agent} Generated Blog Draft</div>
+                        <div style="padding: 1rem; line-height: 1.7; color: var(--text-secondary); max-height: 400px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-secondary);">
+                            ${blog_html}
+                        </div>
+                    </div>
+                    <div class="feedback-buttons">
+                        <button class="feedback-button like" id="like-button">👍 Love It!</button>
+                    </div>
+                `;
+            workflowContainer.appendChild(newStep);
+            newStep.querySelector('#like-button').addEventListener('click', (e) => {
+                alert('Workflow complete! Thanks for using the app.');
+                renderFinalResult({ data: accumulatedAnswers });
+            });
+        }
+
+        function renderFinalResult(data) {
+            // (Your existing function is perfect, no changes)
+            const lastStep = workflowContainer.lastElementChild;
+            if (lastStep && lastStep.classList.contains('step-card')) {
+                lastStep.classList.add('completed');
+            }
+            updateAgentStatus('execution_agent', 'completed');
+            const resultCard = document.createElement('div');
+            resultCard.className = 'step-card active';
+
+            if (data.data && data.data.error === "Validation Failed") {
+                resultCard.innerHTML = `<div class="step-header">
+                        <div class="agent-icon" style="background: var(--danger-color); box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                            </svg>
+                        </div>
+                        <div class="step-title-group">
+                            <div class="agent-name" style="color: var(--danger-color);">WORKFLOW FAILED</div>
+                            <div classa="step-title">Content Generation Failed</div>
+                        </div>
+                    </div>
+                    <div class="critique-box">
+                        <div class="critique-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+                            </svg>
+                            Final Error Report
+                        </div>
+                        <p class="critique-text">${data.data.critique || "The workflow failed after multiple attempts. Please try again with different parameters."}</p>
+                    </div>
+                    <button class="action-button" id="restart-button" style="background: var(--danger-color);">Start Over →</button>
+                `;
+            } else {
+                resultCard.innerHTML = `
+                        <div class="step-header">
+                            <div class="agent-icon completed">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 6 9 17l-5-5"/>
+                                </svg>
+                            </div>
+                            <div class="step-title-group">
+                                <div class="agent-name">WORKFLOW COMPLETE</div>
+                                <div class="step-title">All Done! 🎉</div>
+                            </div>
+                        </div>
+                        <div class="agent-plan">
+                            <div class="agent-plan-header">${AGENT_ICONS.supervisor} Final Data Package</div>
+                            <ul class="plan-steps">
+                                <li class="plan-step" style="border-bottom: none; padding-bottom: 0;">
+                                    <pre style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); overflow-x: auto; font-size: 0.85rem;">${JSON.stringify(data.data || accumulatedAnswers, null, 2)}</pre>
+                                </li>
+                            </ul>
+                        </div>
+                        <button class="action-button" id="restart-button">Start New Generation →</button>
+                    `;
+            }
+            workflowContainer.appendChild(resultCard);
+            resultCard.querySelector('#restart-button').addEventListener('click', () => {
+                location.reload();
+            });
+        }
+
+        function showLoader() {
+            const existingLoader = document.getElementById('workflow-loader');
+            if (!existingLoader) {
+                const loader = document.createElement('div');
+                loader.id = 'workflow-loader';
+                loader.className = 'loader';
+                loader.innerHTML = '<div class="loader-spinner"></div><p>Processing your request...</p>';
+                workflowContainer.appendChild(loader);
+            }
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('workflow-loader');
+            if (loader) {
+                loader.remove();
+            }
+        }
+    </script>
+</body>
+
+</html>

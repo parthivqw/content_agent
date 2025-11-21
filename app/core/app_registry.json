@@ -1,0 +1,31 @@
+{
+  "services": [
+    {
+      "name": "Social Media Post Generator",
+      "id": "social_media_post",
+      "description": "Helps users craft high-impact social media visuals and captions that align with their brand identity, platform trends, and emotional goals.",
+      "entrypoint": "social_media_post_flow",
+      "plan_mode": "static",
+      "plan_path": "core/static_plans/social_media_post.json",
+      "planning_guidelines": "You are an expert AI workflow architect. Your job is to create a detailed, step-by-step JSON action plan for a 'Social Media Post Generator' service. The plan must be a valid JSON object with three keys: 'prepare_agent', 'processing_agent', and 'execution_agent', reflecting the full workflow. The 'prepare_agent' must have steps to collect the post's core topic, target audience, desired tone, key text (like a headline and CTA), and visual style preferences. The 'processing_agent' must first synthesize user answers into a structured payload, then use it to create a detailed image generation prompt AND a compelling draft caption. The 'execution_agent' must validate the outputs for quality and alignment with user requests, then assemble the validated components into the final, deliverable package. Ensure every step includes a 'step_description' and a list of 'output_keys'."
+    },
+    {
+      "name": "Social Media Caption Generator",
+      "id": "social_media_caption",
+      "description": "Generates a compelling caption for a social media post.",
+      "entrypoint": "social_media_caption_flow",
+      "plan_mode": "ai",
+      "plan_path": null,
+      "planning_guidelines": "You are an expert AI workflow architect. Your job is to create a detailed, step-by-step JSON action plan for a 'Social Media Caption Generator' service. The plan must be a valid JSON object with three keys: 'prepare_agent', 'processing_agent', and 'execution_agent'. The 'prepare_agent' must have steps to collect the context of the post, the primary message or call-to-action, desired tone, and any specific hashtags. The 'processing_agent' must use this information to draft 3 distinct caption variations. The 'execution_agent' must validate that the captions meet the user's requirements and then package them for delivery. Ensure every step includes a 'step_description' and a list of 'output_keys'."
+    },
+    {
+      "name": "AI Blog Campaign Generator",
+      "id": "blog_generator",
+      "description": "Creates a cinematic blog article, teaser caption, and matching cover image prompt based on your idea and vibe.",
+      "entrypoint": "blog_campaign_flow",
+      "plan_mode": "ai",
+      "plan_path": null,
+      "planning_guidelines": "You are an expert AI workflow architect. Design a multi-agent workflow for a 'Blog Campaign Generator' that builds a complete creative campaign around a topic. The prepare_agent must gather topic, audience, tone, and emotional vibe. The processing_agent must generate the blog draft, teaser caption, and cover image prompts. The execution_agent must validate coherence and assemble the final creative package. Return a valid JSON action plan with keys for each agent and step descriptions."
+    }
+  ]
+}

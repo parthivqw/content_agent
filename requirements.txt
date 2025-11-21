@@ -1,0 +1,17 @@
+# Backend Framework
+fastapi
+uvicorn[standard]
+
+# LangChain & LangGraph
+langchain
+langgraph
+langchain_openai
+langchain_groq
+
+# Data Validation & Settings
+pydantic
+pydantic-settings
+python-dotenv
+
+# For making HTTP requests
+httpx
