@@ -289,10 +289,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.supervisor.state import update_dict 
 from .models import GenerateRequest, ContinueRequest, ApiResponse
 from app.supervisor.graph import supervisor_app
+from fastapi.responses import Response
 
 app = FastAPI(title="Content Creation Agentic System")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, 
                    allow_methods=["*"], allow_headers=["*"])
+
+# 🔥 ADD THIS: Force OPTIONS to reach FastAPI
+@app.options("/{full_path:path}")
+async def preflight_handler(full_path: str):
+    return Response(status_code=200)
 
 # (Your clean_log_event function is perfect, no changes)
 def clean_log_event(event_dict):
