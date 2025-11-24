@@ -34,7 +34,7 @@ MODEL_KIMI = 'moonshotai/kimi-k2-instruct-0905'
 MODEL_IMAGEN_4 = "provider-4/imagen-4"
 MODEL_PHOENIX = "provider-4/phoenix"
 MODEL_IMAGEN_3 = "provider-4/imagen-3.5"
-MODEL_SDXL_LITE = "provider-5/imagen-4-fast"
+MODEL_IMAGEN4_LITE = "provider-5/imagen-4-fast"
 MODEL_FLUX = "provider-4/flux-schnell"
 MODEL_QWEN="provider-4/qwen-image"
 
@@ -150,36 +150,38 @@ def a4f_chat_completion(model: str, messages: List[Dict], temperature: float = 0
 
 # --- PROMPT GENERATION SYSTEM PROMPT ---
 PROMPT_GENERATION_SYSTEM_PROMPT = """
-You are a world-class visual artist, filmmaker, and AI prompt engineer specializing in next-generation photorealistic models such as Google Imagen-4, Phoenix, Flux, and SDXL.
-
-Your task is to take the following JSON payload describing user preferences and synthesize it into a single, vivid, emotionally rich image-generation prompt optimized for these models.
+You are a world-class Director of Photography (DP) and AI Prompt Engineer. 
+Your task is to synthesize a user's creative brief into a single, masterpiece-level image generation prompt.
 
 User Payload:
 {payload}
 
-RULES:
-1. Combine all elements of the payload—subject, background, environment, mood, visual style, lighting, colors, platform vibe—into a single cinematic paragraph. It should read like a scene description from a film, not a list.
-2. Focus heavily on **photorealism**: describe lighting, atmosphere, textures, reflections, depth, shadows, skin/fabric details, lens type, and cinematic framing.
-3. Use language that Imagen-4 / Phoenix / Flux understand well: natural descriptive prose, not Midjourney syntax or parameter tags.
-4. If the user wants text in the image, describe how the text appears visually; if they do NOT want text, include natural-language negative cues like:
-   "no visible text, no captions, no watermarks, no logos, clean visuals only."
-5. Use advanced cinematic photography language:  
-    "shot on 50mm f/1.8"  
-    "soft rim light outlining the figure"  
-    "hazy volumetric glow"  
-    "ultra-detailed textures, realistic shadows, natural color grading"
-6. Maintain emotional alignment:  
-    Elegant → soft gradients, premium lighting, tasteful contrast  
-    Bold → punchy highlights, dynamic angles  
-    Calm → soft diffusion, cool tones  
-    Luxurious → deep shadows, rich palette, subtle highlights
-7. The output must be a **single raw prompt string**, with no formatting, no bullet points, and no explanation.
-8. Assume the model is capable of ultra-high realism, 8K-detail fidelity, natural human skin simulation, and physically accurate lighting.
-9. Ensure the final prompt feels like a **masterpiece-level cinematic photograph** ready for Imagen-4 or Flux.
+### 🧠 YOUR CORE INSTRUCTIONS (DO NOT COPY-PASTE EXAMPLES)
 
-Generate the final image prompt now.
+1. **Analyze the Subject Matter:** - If the subject is a *Landscape/Cityscape*, use wide-angle terminology (e.g., "24mm wide angle", "panoramic", "infinite depth of field").
+   - If the subject is a *Portrait*, use portrait terminology (e.g., "85mm portrait lens", "bokeh", "shallow depth of field", "focus on eyes").
+   - If the subject is *Macro/Product*, use macro terminology (e.g., "100mm macro", "extreme close-up", "texture focus").
+   - **DO NOT** default to "50mm f/1.8" unless it specifically fits the scene composition. Choose the lens that fits the shot.
+
+2. **Lighting & Atmosphere (The "Vibe"):**
+   - Don't just list colors. Describe *how light behaves*.
+   - Use terms like: "volumetric fog," "subsurface scattering" (for skin), "god rays," "chiaroscuro," "bioluminescent glow," or "hard studio lighting" based on the `{emotion_vibe}`.
+
+3. **Text Integration (Crucial):**
+   - If `{include_text_message}` is "Yes": Clearly describe the text's physical presence (e.g., "a neon sign reading 'HELLO'", "embossed gold lettering on a card", "holographic data display showing...").
+   - If `{include_text_message}` is "No": You MUST append this negative constraint naturally: "clean composition, no text, no watermarks, no typography."
+
+4. **The "Flux/Imagen" Style:**
+   - These models prefer natural language over "tag soup". Write a cohesive paragraph describing the scene as if you are explaining a movie frame to a CGI artist.
+
+### 🚫 NEGATIVE CONSTRAINTS
+- DO NOT blindly copy generic camera settings.
+- DO NOT use the word "parameter" or "settings".
+- DO NOT start with "Here is the prompt". Just output the prompt.
+
+### OUTPUT FORMAT
+Return **ONLY** the raw prompt string. No quotes, no labels.
 """
-
 # --- GOLDEN EXAMPLE PLAN ---
 GOLDEN_PLAN_EXAMPLE = """
 {
@@ -384,69 +386,6 @@ Generate the Stage 1 questions now.
 
 
 
-# --- 🔥 NEW: CLASSIFICATION PROMPT ---
-# CLASSIFY_CONTENT_SYSTEM_PROMPT = """
-# You are an expert-level **Content Classification Agent**.
-# Your SOLE purpose is to analyze the user's <context> and map it to **ONE SINGLE** content type from the <master_list>.
-
-# <master_list>
-# {master_list}
-# </master_list>
-
-# ---
-# Here is your 5-point reasoning guide. You MUST follow this:
-
-# <reasoning_guide>
-# 1.  **Post Type → Core Intent:**
-#     * 'Business Promotion', 'Hiring Ad', 'Event Ad', 'Product Launch' strongly imply types from categories B or C.
-#     * 'Personal Post' implies types from category D.
-#     * 'Artwork/Illustration' implies types from category E.
-
-# 2.  **Platform → Format:**
-#     * 'Instagram' or 'Facebook' suggests 'Social Media Post', 'Story', or 'Carousel Slide'.
-#     * 'LinkedIn' suggests 'Hiring Ad', 'Company Announcement', or 'Corporate Banner'.
-#     * 'Website' suggests 'Website Hero Image' or 'Landing Page Banner'.
-
-# 3.  **Vibe/Emotion → Style:**
-#     * 'Bold', 'Professional', 'Energetic' often pair with Promotional (B) or Business (C) types.
-#     * 'Fun', 'Calm' often pair with Personal (D) or Social (A) types.
-#     * 'Elegant', 'Minimalist' can apply to any, but refine the style.
-
-# 4.  **Text/Logo Included? → Type Confirmation:**
-#     * **'Yes'** is a very strong signal for categories B, C, G, or H (e.g., 'Poster', 'Hiring Ad', 'Infographic').
-#     * **'No'** strongly implies categories D or E (e.g., 'Portrait', 'Artwork', 'Lifestyle Photo').
-
-# 5.  **Visual Style → Final Refinement:**
-#     * 'Photo-realistic' points to 'Portrait', 'Product Showcase', or 'Lifestyle Photo'.
-#     * 'Vector Illustration' or 'Flat Design' strongly suggests 'Poster', 'Flyer', or 'Infographic'.
-#     * '3D Render' points to 'Product Launch' or 'Abstract Design'.
-# </reasoning_guide>
-
-# ---
-# Here is the user's context, based on their Stage 1 answers:
-
-# <context>
-# {context}
-# </context>
-
-# ---
-# RULES:
-# 1.  You MUST follow the <reasoning_guide> to analyze the <context>.
-# 2.  You MUST select the *most specific* type from the <master_list> that fits.
-#     (e.g., If context suggests a poster for hiring, choose 'Hiring Ad', NOT 'Poster').
-# 3.  You MUST return a valid JSON object with this exact structure:
-#     {{
-#       "classification": {{
-#         "type": "<The chosen type from the list, e.g., 'Hiring Ad'>",
-#         "category": "<The category heading, e.g., 'C. Business / Professional Creatives'>"
-#       }},
-#       "reasoning": "<A brief, 1-2 sentence explanation of why you chose this type based on the context>"
-#     }}
-# 4.  Do not add any other text or explanation outside the JSON.
-# ---
-
-# Analyze the <context> and provide your JSON classification now.
-# """
 
 CLASSIFY_CONTENT_SYSTEM_PROMPT = """
 You are an expert-level **Content Classification Agent**.
@@ -552,57 +491,8 @@ def classify_content_type_tool(context: Dict[str, Any]) -> Dict[str, Any]:
         }
     
 
-# # 🔥 REFACTORED: STAGE 2 QUESTIONS (A4F via requests)
-# SYSTEM_PROMPT_STAGE_2 = """
-# You are an intelligent creative assistant.
-# Your goal is to generate *Stage 2 follow-up questions* that clarify details
-# based on the user's previous answers and the type of service being built.
 
-# The user's Stage 1 context is:
-# {context}
 
-# The service information is:
-# Name: {service_name}
-# Description: {service_desc}
-
-# RULES:
-# 1. Tailor questions to this specific context.
-# 2. Only ask what's actually useful for generating the image/caption later.
-# 3. Use a calm, professional, and conversational tone (not robotic or slangy).
-# 4. Output valid JSON with this structure:
-#    {{
-#      "questions": [
-#        {{
-#          "id": "<unique_id>",
-#          "type": "radio" | "textarea",
-#          "label": "<the natural-language question>",
-#          "options": [ ...optional for radio type... ]
-#        }}
-#      ]
-#    }}
-# 5. If you have enough context already, return an empty list.
-# 6. There are only 2 types  "radio" and "textarea" include every keyvalue for "type" as radio or textarea
-
-# 🔥 CREATIVE DEPTH RULES:
-# - Interpret emotion_vibe and platform to generate context-aware follow-ups.
-# - Ask at least one question about audience or intent (who the design is for).
-# - Ask one question about layout or format if a platform like Instagram is mentioned.
-# - Use the user's emotion_vibe to make one creative direction question (e.g., "Should it feel playful, powerful, or premium?").
-
-# 🔥 UI LOGIC RULES:
-# - For questions about audiences, colors, tones, themes, elements, features, or styles, prefer "radio" type with multiple options.
-# - Always add "Other" as the last option for "radio" type questions.
-# - Keep "textarea" for open-ended creative descriptions (e.g., subject details, background details).
-
-# CRITICAL VALIDATION (Before Output):
-# ✅ Did I check if each question's `id` is ALREADY in context? (If yes, I must not ask it).
-# ✅ Did I apply ALL conditional logic rules for the context?
-# ✅ Did I add 1-2 "Creative Depth" questions?
-# ✅ Does EVERY question have `id`, `label`, and `type`?
-# ✅ Is my JSON valid?
-
-# Analyze the context and generate all necessary follow-up questions now.
-# """
 # --- 🔥 REPLACED *AGAIN*: The FINAL Stage 2 Prompt (Hybrid) ---
 SYSTEM_PROMPT_STAGE_2 = """
 You are an expert-level creative assistant. Your SOLE job is to generate a list of
@@ -681,74 +571,7 @@ EXAMPLES (Follow this logic):
 
 Generate the specific follow-up questions for a **{content_type}** now.
 """
-# def generate_follow_up_questions_tool(context: Dict[str, Any], service_info: Optional[Dict[str, Any]]) -> dict:
-#     """
-#     Generates Stage 2 follow-up questions using A4F GPT-4o-mini via raw requests.
-#     """
-#     print(f"---TOOL (Stage 2): 🧠 Generating adaptive follow-up questions based on context---")
-#     print(f"---TOOL (Stage 2): Context Provided: {context} ---")
 
-#     service_name = service_info.get("name", "Unknown Service")
-#     service_desc = service_info.get("description", "No description")
-
-#     system_prompt_content = SYSTEM_PROMPT_STAGE_2.format(
-#         context=json.dumps(context, indent=2),
-#         service_name=service_name,
-#         service_desc=service_desc
-#     )
-
-#     try:
-#         # 🔥 Using A4F via raw requests
-#         messages = [{"role": "system", "content": system_prompt_content}]
-#         result_text = a4f_chat_completion(MODEL_GPT_4O_MINI, messages, temperature=0.45, max_tokens=500)
-        
-#         print(f"DEBUG TOOL (Stage 2): Raw LLM Output: {result_text[:500]}...")
-#         result_json = json.loads(result_text)
-
-#         if "questions" not in result_json or not isinstance(result_json["questions"], list):
-#             raise ValueError("LLM response missing 'questions' list or wrong type.")
-        
-#         print("---TOOL (Stage 2): Running post-processing rules...---")
-#         processed_questions = []
-        
-#         for q in result_json.get("questions", []):
-#             if not all(k in q for k in ["id", "label", "type"]):
-#                 print(f"⚠️ Post-processor: Skipping malformed question: {q}")
-#                 continue
-            
-#             if q["id"] in context:
-#                 print(f"⚠️ Post-processor: SKIPPING REPETITIVE question '{q['id']}'")
-#                 continue
-            
-#             label_lower = q["label"].lower()
-            
-#             multi_select_keywords = ["audience", "colors", "tones", "themes", "elements", "features", "styles"]
-#             if any(k in label_lower for k in multi_select_keywords):
-#                 if q["type"] == "radio":
-#                     print(f"🔄 UPGRADING to checkbox: {q['id']}")
-#                     q["type"] = "checkbox"
-
-#             if q["type"] == "radio" and "options" in q:
-#                 if "Other" not in q["options"]:
-#                     print(f"➕ ADDING 'Other' to: {q['id']}")
-#                     q["options"].append("Other")
-
-#             processed_questions.append(q)
-        
-#         result_json["questions"] = processed_questions
-
-#         print(f"✅ LLM generated and processed {len(result_json.get('questions', []))} adaptive Stage 2 questions.")
-#         return result_json
-        
-#     except Exception as e:
-#         print(f"❌ ERROR generating follow-up questions: {e}")
-#         return {
-#             "questions": [{
-#                 "id": "error",
-#                 "label": f"Sorry, could not generate follow-up questions. Error: {str(e)}",
-#                 "type": "textarea"
-#             }]
-#         }
 
 #---STAGE 2: QUESTIONS TOOL---
 def generate_follow_up_questions_tool(
@@ -830,9 +653,6 @@ def generate_follow_up_questions_tool(
         }
 
 
-
-
-
 # --- IMAGE PROMPT GENERATION (GROQ) ---
 def generate_image_prompt_tool(payload: Dict[str, Any], model_name: str):
     """
@@ -840,7 +660,16 @@ def generate_image_prompt_tool(payload: Dict[str, Any], model_name: str):
     """
     print(f"---TOOL: Generating prompt with {model_name}---")
     try:
-        system_prompt_content = PROMPT_GENERATION_SYSTEM_PROMPT.format(payload=json.dumps(payload, indent=2))
+        # 🔥 FIX: Extract the missing variables needed by the prompt string
+        emotion_vibe = payload.get("emotion_vibe", "professional")
+        include_text = payload.get("include_text_message", "No")
+
+        # 🔥 FIX: Pass them into .format()
+        system_prompt_content = PROMPT_GENERATION_SYSTEM_PROMPT.format(
+            payload=json.dumps(payload, indent=2),
+            emotion_vibe=emotion_vibe,           # <--- Added this
+            include_text_message=include_text    # <--- Added this
+        )
 
         response = client.chat.completions.create(
             messages=[
@@ -960,19 +789,66 @@ def get_model_ranking_tool(payload: Dict[str, Any]) -> Dict[str, Any]:
     model_to_use = MODEL_GPT_OSS
 
     try:
-        system_content = """You are an AI Model Routing Specialist. Your job is to analyze a user's request and rank available image models from Best Fit (Rank 1) to Worst Fit (Rank 5).
+        system_content = """You are an AI Model Routing Specialist. Your job is to rank image generation models based on the user's specific requirements.
 
-AVAILABLE MODELS & STRENGTHS:
-- "provider-4/imagen-4": Best for photo-realism, human faces, and text.
-- "provider-4/phoenix": Best for cinematic, vibrant, and "vibe-heavy" scenes.
-- "provider-4/flux-schnell": Best for artistic, fantasy, and non-photo-real styles.
-- "provider-4/sdxl-lite": Best for graphics, vector art, and flat designs.
-- "provider-4/imagen-3": A good, fast, lightweight all-rounder.
+ THE MODEL ARSENAL (Know your tools)
 
-Return ONLY valid JSON with this exact structure:
+1. **"provider-4/imagen-4" (TIER S - THE KING)**
+   - **STRENGTHS:** Unbeatable text rendering (spelling), hyper-realism, complex prompt adherence.
+   - **USE WHEN:** User asks for text/logos, "photorealistic" portraits, or complex "Business" content.
+   - **WEAKNESS:** Slower than "fast" models.
+
+2. **"provider-4/phoenix" (TIER A - THE ARTIST)**
+   - **STRENGTHS:** Incredible lighting, cinematic composition, "vibes", artistic styles (oil painting, cyberpunk).
+   - **USE WHEN:** "Cinematic", "Artistic", "Fantasy", or "Atmospheric" is requested.
+   - **WEAKNESS:** Good at text, but Imagen 4 is better.
+
+3. **"provider-5/imagen-4-fast" (TIER A - THE SPEEDSTER)**
+   - **STRENGTHS:** High quality but optimized for speed.
+   - **USE WHEN:** User wants "Social Media" content where speed matters, but quality must remain high.
+
+4. **"provider-4/imagen-3.5" (TIER B - THE VETERAN)**
+   - **STRENGTHS:** Very reliable, good all-rounder.
+   - **USE WHEN:** A safe fallback if others fail.
+
+5. **"provider-4/flux-schnell" (TIER B - THE SPECIALIST)**
+   - **STRENGTHS:** 3D Renders, Abstract Art, Surrealism. Very fast.
+   - **USE WHEN:** "3D Render", "Abstract", "Minimalist" styles are requested.
+
+6. **"provider-4/qwen-image" (TIER C - THE WILDCARD)**
+   - **STRENGTHS:** Good general understanding.
+   - **USE WHEN:** Complex logic is needed, or as a deep fallback.
+
+---
+
+### 🧠 ROUTING LOGIC (Follow this strictly)
+
+**SCENARIO 1: TEXT IS CRITICAL**
+If `include_text_message` is "Yes" or the prompt mentions "sign", "headline", "logo":
+-> **MUST RANK #1:** "provider-4/imagen-4"
+-> **Rank #2:** "provider-4/phoenix"
+
+**SCENARIO 2: PHOTOREALISM / PORTRAITS**
+If `visual_style` is "Photo-realistic":
+-> **MUST RANK #1:** "provider-4/imagen-4"
+-> **Rank #2:** "provider-5/imagen-4-fast"
+
+**SCENARIO 3: 3D / ABSTRACT / ART**
+If `visual_style` is "3D Render", "Illustration", or "Abstract":
+-> **MUST RANK #1:** "provider-4/flux-schnell" or "provider-4/phoenix"
+
+**SCENARIO 4: BLOG COVERS (High Quality Required)**
+If the request is for a "Blog Post" or "Article":
+-> **NEVER** rank low-quality models first. Prioritize Imagen 4 or Phoenix.
+
+---
+
+### OUTPUT FORMAT
+Return ONLY valid JSON:
 {
-  "model_ranking": ["provider-4/imagen-4", "provider-4/phoenix", "provider-4/imagen-3", "provider-4/flux-schnell", "provider-4/sdxl-lite"]
-}"""
+  "model_ranking": ["model_id_1", "model_id_2", "model_id_3", "model_id_4", "model_id_5"]
+}
+"""
 
         user_content = f"""Rank these models for this request:
 
@@ -1003,13 +879,13 @@ Return the ranking as JSON."""
     except json.JSONDecodeError as je:
         print(f"TOOL ERROR (JSON decode): {je}")
         return {
-            "model_ranking": [MODEL_IMAGEN_4, MODEL_PHOENIX, MODEL_IMAGEN_3, MODEL_FLUX, MODEL_SDXL_LITE],
+            "model_ranking": [MODEL_IMAGEN_4, MODEL_PHOENIX, MODEL_IMAGEN_3, MODEL_FLUX, MODEL_IMAGEN4_LITE],
             "error": f"JSON decode failed: {str(je)}"
         }
     except Exception as e:
         print(f"TOOL ERROR (get_model_ranking_tool): {e}")
         return {
-            "model_ranking": [MODEL_IMAGEN_4, MODEL_PHOENIX, MODEL_IMAGEN_3, MODEL_FLUX, MODEL_SDXL_LITE],
+            "model_ranking": [MODEL_IMAGEN_4, MODEL_PHOENIX, MODEL_IMAGEN_3, MODEL_FLUX, MODEL_IMAGEN4_LITE],
             "error": str(e)
         }
 
