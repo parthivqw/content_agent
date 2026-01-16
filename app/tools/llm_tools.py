@@ -26,7 +26,7 @@ A4F_HEADERS = {
 
 # --- 🔥 YOUR CHOSEN MODELS ---
 MODEL_GPT_OSS = 'openai/gpt-oss-120b'
-MODEL_GPT_4O_MINI = 'provider-5/gpt-4o-mini'  # A4F chat model
+MODEL_GPT_4O_MINI = 'provider-5/gpt-oss-120b-medium'  # A4F chat model
 MODEL_LLAMA_3_1 = 'llama-3.3-70b-versatile'
 MODEL_KIMI = 'moonshotai/kimi-k2-instruct-0905'
 
